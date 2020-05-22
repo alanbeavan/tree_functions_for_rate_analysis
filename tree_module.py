@@ -100,7 +100,6 @@ def is_duplication(node):
     for set in tips:
         for i in range(len(set)):
             set[i] = set[i].split("_")[0]
-
     for tip in tips[0]:
         if tip in tips[1]:
             return 1
