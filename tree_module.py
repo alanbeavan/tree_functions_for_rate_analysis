@@ -208,7 +208,38 @@ def node_with_deletion(old_node, new_node):
     
     #print(old_copy.ascii_art())
     #for 
-    
+
+
+def extract_treenode(node_info, treedir):
+    """
+    Take the node from a tree above that specified in the node_info.
+
+    ARGUMENTS:
+    node_info - the name of the orthgroup and the node label
+    treedir - the location of the tree files
+
+    RETURNS:
+    node_with_outgroup - the node of interest with the smallest possible
+        outgroup attached.
+
+    REQUIRES:
+    newick
+    tree_module
+    """
+    og, node_lab = node_info.split()
+    tree = read_tree(treedir + "/" + og + "_tree.txt")
+    print(treedir + "/" + og + "_tree.txt")
+    nodes = []
+    nodes = get_all_nodes(tree, calculate_nnodes(tree), [], [])
+    print(nodes[0:3])
+    for node in nodes:
+        for des in node.descendants:
+            if des.name == node_lab:
+                return node
+    print(og + " " + node_lab + " didn't work for some reason")
+    return 0
+
+
 
 def main():
     """Just tests."""

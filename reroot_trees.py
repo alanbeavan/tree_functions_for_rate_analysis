@@ -65,6 +65,7 @@ def reroot_tree(tree, outgroup):
     """
     newick_string = newick.dumps(tree)
     tree = ete3.Tree(newick_string, format = 1)
+    print(tree)
     try:
         if len(outgroup) == 1:
             tree.set_outgroup(outgroup[0])
@@ -76,9 +77,12 @@ def reroot_tree(tree, outgroup):
         for leaf in tree:
             taxa.append(leaf.name)
         outgroup = list(set(taxa) - set(outgroup))
-        print(outgroup)
-        mrca = tree.get_common_ancestor(outgroup)
-        tree.set_outgroup(mrca)
+        #print(outgroup)
+        if len(outgroup) == 1:
+            tree.set_outgroup(outgroup[0])
+        else:
+            mrca = tree.get_common_ancestor(outgroup)
+            tree.set_outgroup(mrca)
     return tree
 
 def write_tree(tree, outdir, index):
@@ -95,15 +99,21 @@ def main():
     n_trees = len(os.listdir(orthofinder_trees))
     i = 0
     while i < n_trees:
-        og_tree = tm.read_tree(orthofinder_trees + "/tree_" + str(i) + ".txt")
-        iqtree_tree = tm.read_tree(iqtree_trees + "/full_" + str(i) + \
+        try:
+            print(str(i))
+            og_tree = tm.read_tree(orthofinder_trees + "/tree_" + str(i) + ".txt")
+            iqtree_tree = tm.read_tree(iqtree_trees + "/full_" + str(i) + \
                                    ".treefile")
-        outgroup_taxa = get_og_outgroup(og_tree)
-        outgroup_taxa = translate_tiplabels(outgroup_taxa)
+            outgroup_taxa = get_og_outgroup(og_tree)
+            outgroup_taxa = translate_tiplabels(outgroup_taxa)
+            
+            rooted_tree = reroot_tree(iqtree_tree, outgroup_taxa)
 
-        rooted_tree = reroot_tree(iqtree_tree, outgroup_taxa)
+            write_tree(rooted_tree, iqtree_trees, i)
 
-        write_tree(rooted_tree, iqtree_trees, i)
+        except:
+            print(str(i) + "didn't work for some reason")
+
         i += 1
 
 if __name__ == "__main__":
